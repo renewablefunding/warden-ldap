@@ -15,7 +15,7 @@ module Warden
       end
 
       def register
-        Warden::Strategies.add(:ldap, Warden::Strategies::Ldap)
+        Warden::Strategies.add(:ldap, Warden::Ldap::Strategy)
       end
     end
   end

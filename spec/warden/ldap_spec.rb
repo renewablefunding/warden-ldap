@@ -1,7 +1,3 @@
-class LoginController
-
-end
-
 describe Warden::Ldap do
   before :each do
     described_class.configure do |c|
@@ -22,10 +18,27 @@ describe Warden::Ldap do
 
   it 'returns 200 if authenticates properly' do
     env = env_with_params("/", {'username' => 'bobby', 'password' => 'joel'})
+    app = lambda do |env|
+      env['warden'].authenticate(:ldap)
+      success_app.call(env)
+    end
     Warden::Ldap::Connection.any_instance.stub(:authenticate! => true)
     Warden::Ldap::Connection.any_instance.stub(:ldap_param_value).with('cn').and_return('Samuel')
-    result = setup_rack(success_app).call(env)
+    result = setup_rack(app).call(env)
     result.first.should == 200
     result.last.should == ["You Rock!"]
+  end
+
+  it 'returns authenticated user information' do
+    env = env_with_params("/", {'username' => 'bobby', 'password' => 'joel'})
+    app = lambda do |env|
+      env['warden'].authenticate(:ldap)
+      success_app.call(env)
+    end
+    Warden::Ldap::Connection.any_instance.stub(:authenticate! => true)
+    Warden::Ldap::Connection.any_instance.stub(:ldap_param_value).with('cn').and_return('Samuel')
+    result = setup_rack(app).call(env)
+    env['warden'].user.username.should == 'bobby'
+    env['warden'].user.name.should == 'Samuel'
   end
 end

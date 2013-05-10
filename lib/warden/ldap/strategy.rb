@@ -2,14 +2,14 @@ require 'ostruct'
 require 'net/ldap'
 
 module Warden
-  module Strategies
-    class Ldap < Base
+  module Ldap
+    class Strategy < Warden::Strategies::Base
       def valid?
-        params['username'] && params['password']
+        credentials.all?{|c| c.to_s !~ /^\s*$/}
       end
 
       def authenticate!
-        username, password = params.values_at('username', 'password')
+        username, password = credentials
         connection = Warden::Ldap::Connection.new({ :username => username, :password => password })
         response = connection.authenticate!
 
@@ -22,6 +22,11 @@ module Warden
         end
       rescue Net::LDAP::LdapError
         fail!("Could not log in")
+      end
+
+      private
+      def credentials
+        params.values_at('username', 'password')
       end
     end
   end
