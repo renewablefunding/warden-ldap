@@ -1,4 +1,6 @@
 require 'ostruct'
+require 'net/ldap'
+
 module Warden
   module Strategies
     class Ldap < Base
@@ -7,12 +9,13 @@ module Warden
       end
 
       def authenticate!
-        u, p = params.values_at('username', 'password')
-        l = Warden::Ldap::Connect.new({ :username => u, :password => p })
-        a = l.authenticate!
+        username, password = params.values_at('username', 'password')
+        connection = Warden::Ldap::Connection.new({ :username => username, :password => password })
+        response = connection.authenticate!
 
-        if a
-          user = OpenStruct.new({ :username => u, :name => l.ldap_param_value('cn') })
+        if response
+          user = OpenStruct.new({ :username => username,
+                                  :name => connection.ldap_param_value('cn') })
           success!(user)
         else
           fail!("Could not log in")

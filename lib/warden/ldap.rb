@@ -5,6 +5,21 @@ require "warden/ldap/strategy"
 
 module Warden
   module Ldap
-    # Your code goes here...
+    class << self
+      def configure
+        yield configuration if block_given?
+      end
+
+      def configuration
+        @configuration ||= Configuration.new
+      end
+
+      def register
+        Warden::Strategies.add(:ldap, Warden::Strategies::Ldap)
+      end
+    end
   end
 end
+
+Warden::Ldap.register
+

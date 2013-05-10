@@ -4,3 +4,8 @@ source 'https://rubygems.org'
 gemspec
 
 gem 'rspec'
+
+group :development, :test do
+  gem 'rack'
+  gem 'debugger'
+end
