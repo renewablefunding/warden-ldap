@@ -24,9 +24,24 @@ module Warden
         end
       end
 
-
       define_setting :config_file
 
+      define_setting :env
+
+      define_setting :logger
+
+      def initialize
+        @logger ||= Warden::Ldap::Logger
+      end
+
+      def env
+        if defined? Rails
+          Rails.env
+        elsif @env.nil?
+          raise 'Must define Warden::Ldap.env'
+        end
+        @env
+      end
     end
   end
 end
