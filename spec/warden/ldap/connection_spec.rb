@@ -12,15 +12,5 @@ describe Warden::Ldap::Connection do
       Net::LDAP.any_instance.should_receive(:bind).and_return(true)
       subject.authenticate!.should be_true
     end
-
-    it 'actually authenticates' do
-      Warden::Ldap.configure do |c|
-        c.config_file = "/Users/mhawash/src/hummingbird/config/ldap.yml"
-        c.env = 'production'
-      end
-
-      subject = described_class.new({:username => 'mhawash', :password => 'sarra1216'})
-    p  subject.authenticate!
-    end
   end
 end

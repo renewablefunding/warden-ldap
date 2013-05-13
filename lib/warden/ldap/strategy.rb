@@ -1,5 +1,6 @@
 require 'ostruct'
 require 'net/ldap'
+require 'warden'
 
 module Warden
   module Ldap
