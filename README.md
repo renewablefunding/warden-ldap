@@ -30,7 +30,7 @@ Or install it yourself as:
     
 3. Add the ldap_config.yml to configure connection to ldap server. see lib/fixtures/ldap_config_sample.yml
 
-###### Note: an options configuration `test_environments` accepts an array of environments to mock, where authentication works as long as username and password are supplies and password is not "fail"
+Note: an optional configuration, `test_environments`, accepts an array of environments to mock, where authentication works as long as username and password are supplies and password is not "fail"
 
 ## Contributing
 
