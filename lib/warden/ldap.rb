@@ -3,6 +3,7 @@ require "warden/ldap/logger"
 require "warden/ldap/configuration"
 require "warden/ldap/connection"
 require "warden/ldap/strategy"
+require "warden/ldap/fake_strategy"
 
 module Warden
   module Ldap
@@ -14,6 +15,7 @@ module Warden
 
       def configure
         yield configuration if block_given?
+        Warden::Ldap.register
       end
 
       def configuration
@@ -21,11 +23,13 @@ module Warden
       end
 
       def register
-        Warden::Strategies.add(:ldap, Warden::Ldap::Strategy)
+        strategy = configuration.test_env? ?
+          Warden::Ldap::FakeStrategy :
+          Warden::Ldap::Strategy
+
+        Warden::Strategies.add(:ldap, strategy)
       end
     end
   end
 end
-
-Warden::Ldap.register
 

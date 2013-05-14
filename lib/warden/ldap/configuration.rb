@@ -30,6 +30,8 @@ module Warden
 
       define_setting :logger
 
+      define_setting :test_environments
+
       def initialize
         @logger ||= Warden::Ldap::Logger
       end
@@ -41,6 +43,10 @@ module Warden
           raise 'Must define Warden::Ldap.env'
         end
         @env
+      end
+
+      def test_env?
+        (@test_environments || []).include? env
       end
     end
   end
