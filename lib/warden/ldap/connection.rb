@@ -28,18 +28,16 @@ module Warden
         @ldap.search(:filter => ldap_username_filter) {|entry| ldap_entry = entry}
 
         if ldap_entry
-          if ldap_entry[param]
-            logger.info("Requested param #{param} has value #{ldap_entry.send(param)}")
-            value = ldap_entry.send(param)
-            value = value.first if value.is_a?(Array) and value.count == 1
-          else
-            logger.error("Requested param #{param} does not exist")
-            value = nil
-          end
+          value = ldap_entry.send(param)
+          logger.info("Requested param #{param} has value #{value}")
+          value = value.first if value.is_a?(Array) and value.count == 1
         else
           logger.error("Requested ldap entry does not exist")
           value = nil
         end
+      rescue NoMethodError => e
+        logger.error("Requested param #{param} does not exist")
+        nil
       end
 
       def authenticate!
