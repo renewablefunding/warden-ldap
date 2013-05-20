@@ -13,6 +13,8 @@ module Warden
     #   end
     #
     class Configuration
+      class Missing < StandardError; end
+
       class << self
         def define_setting(name)
           defined_settings << name
@@ -37,12 +39,11 @@ module Warden
       end
 
       def env
-        if defined? Rails
+        @env ||= if defined? Rails
           Rails.env
         elsif @env.nil?
-          raise 'Must define Warden::Ldap.env'
+          raise Missing, 'Must define Warden::Ldap.env'
         end
-        @env
       end
 
       def test_env?
