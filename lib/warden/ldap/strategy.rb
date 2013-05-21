@@ -5,10 +5,22 @@ require 'warden'
 module Warden
   module Ldap
     class Strategy < Warden::Strategies::Base
+      # @public
+      # Checks if all credentials have been provided.
+      #
       def valid?
         credentials.all?{|c| c.to_s !~ /^\s*$/}
       end
 
+      # @public
+      # Performs authentication through the net-ldap library by making a
+      # connection to the ldap server specified in the warden_ldap.yml file
+      # and with the current credentials.
+      #
+      # Output:
+      #   success: user object constructed as an OpenStruct with username, and name derived from
+      #            the 'cn' key in the LDAP directory
+      #   failure: nil
       def authenticate!
         username, password = credentials
         connection = Warden::Ldap::Connection.new({ :username => username, :password => password })
@@ -26,6 +38,10 @@ module Warden
       end
 
       private
+      # @private
+      # extracts the username and password from the params (this is the
+      # same params on the RackRequest object which is typically delivered
+      # directly from the login form)
       def credentials
         params.values_at('username', 'password')
       end

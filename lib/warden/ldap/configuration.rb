@@ -26,18 +26,31 @@ module Warden
         end
       end
 
+      # path to the config file which is required for connecting to the
+      # LDAP server.
+      # REQUIRED
       define_setting :config_file
 
+      # Application environment.  Used for determining which
+      # environment to use from the YAML config_file
+      # defaults to Rails.env if within Rails app
       define_setting :env
 
+      # Logger to use for outputing info and errors.
+      # defaults to STDOUT/STDERR
       define_setting :logger
 
+      # Used to provide an array of environemnts to be considered as
+      # test environemnts
       define_setting :test_environments
 
       def initialize
         @logger ||= Warden::Ldap::Logger
       end
 
+      # @public
+      # returns the current environment set by the app,
+      # defaults to Rails.env if within Rails app and env is not set.
       def env
         @env ||= if defined? Rails
           Rails.env
@@ -46,6 +59,8 @@ module Warden
         end
       end
 
+      # @public
+      # true if current environemnt is one of the ones listed in test_environements
       def test_env?
         (@test_environments || []).include? env
       end
