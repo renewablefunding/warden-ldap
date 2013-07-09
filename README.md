@@ -1,5 +1,7 @@
 # Warden::Ldap
 
+[![Build Status](https://travis-ci.org/renewablefunding/warden-ldap.png)](https://travis-ci.org/renewablefunding/warden-ldap)
+
 **NOTE**: This product is still pre-release, and implementation is *not* in sync with documentation yet - hence the pre-release version.  We'll follow [the Semantic Versioning Specification (Semver)](http://semver.org/), so you can assume anything at 0.x.x still has an unstable API.  But we *are* actively developing this.
 
 Adds LDAP Strategy for [warden](https://github.com/hassox/warden) using the [net-ldap](http://net-ldap.rubyforge.org/Net/LDAP.html) library.
