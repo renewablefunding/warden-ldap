@@ -28,7 +28,8 @@ module Warden
 
         if response
           user = OpenStruct.new({ :username => username,
-                                  :name => connection.ldap_param_value('cn') })
+                                  :name => connection.ldap_param_value('cn'),
+                                  :email => connection.ldap_param_value('mail') })
           success!(user)
         else
           fail!("Could not log in")

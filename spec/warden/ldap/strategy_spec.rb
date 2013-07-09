@@ -28,6 +28,9 @@ describe Warden::Ldap::Strategy do
     it 'succeeds if the ldap connection succeeds' do
       Warden::Ldap::Connection.any_instance.stub(:authenticate! => true)
       Warden::Ldap::Connection.any_instance.stub(:ldap_param_value).with('cn').and_return('Samuel')
+      Warden::Ldap::Connection.any_instance.stub(:ldap_param_value).
+        with('mail').
+        and_return('Samuel@swiftpenguin.com')
       subject.should_receive(:success!)
       subject.authenticate!
     end

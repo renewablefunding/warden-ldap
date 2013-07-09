@@ -7,7 +7,7 @@ module Warden
       def authenticate!
         username, password = credentials
         if valid? && password.downcase != 'fail'
-          user = OpenStruct.new({ :username => username })
+          user = OpenStruct.new({ :username => username, :email => "#{username}@fakeuser.com" })
           success!(user)
         else
           fail!("Could not log in")
