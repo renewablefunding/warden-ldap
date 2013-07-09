@@ -1,4 +1,5 @@
 require 'warden'
+require 'warden/ldap'
 require 'rack'
 module Warden::Ldap::Helpers
   module RackHelpers
