@@ -27,7 +27,7 @@ module Warden
         response = connection.authenticate!
 
         if response
-          user = OpenStruct.new({ :username => connection.ldap_param_value('uid'),
+          user = OpenStruct.new({ :username => connection.ldap_param_value('samAccountName'),
                                   :name => connection.ldap_param_value('cn'),
                                   :email => connection.ldap_param_value('mail') })
           success!(user)

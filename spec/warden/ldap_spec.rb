@@ -24,7 +24,7 @@ describe Warden::Ldap do
       success_app.call(env)
     end
     Warden::Ldap::Connection.any_instance.stub(:authenticate! => true)
-    Warden::Ldap::Connection.any_instance.stub(:ldap_param_value).with('uid').and_return('samuel')
+    Warden::Ldap::Connection.any_instance.stub(:ldap_param_value).with('samAccountName').and_return('samuel')
     Warden::Ldap::Connection.any_instance.stub(:ldap_param_value).with('cn').and_return('Samuel')
     Warden::Ldap::Connection.any_instance.stub(:ldap_param_value).with('mail').and_return('Samuel@swiftpenguin.com')
     result = setup_rack(app).call(env)
@@ -39,7 +39,7 @@ describe Warden::Ldap do
       success_app.call(env)
     end
     Warden::Ldap::Connection.any_instance.stub(:authenticate! => true)
-    Warden::Ldap::Connection.any_instance.stub(:ldap_param_value).with('uid').and_return('bobby')
+    Warden::Ldap::Connection.any_instance.stub(:ldap_param_value).with('samAccountName').and_return('bobby')
     Warden::Ldap::Connection.any_instance.stub(:ldap_param_value).with('cn').and_return('Samuel')
     Warden::Ldap::Connection.any_instance.stub(:ldap_param_value).with('mail').and_return('Samuel@swiftpenguin.com')
     result = setup_rack(app).call(env)
