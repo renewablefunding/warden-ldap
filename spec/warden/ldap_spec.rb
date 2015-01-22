@@ -13,8 +13,8 @@ describe Warden::Ldap do
       throw(:warden)
     end
     result = setup_rack(app).call(env)
-    result.first.should == 401
-    result.last.should == ["You Fail!"]
+    expect(result.first).to eq 401
+    expect(result.last).to eq ['You Fail!']
   end
 
   it 'returns 200 if authenticates properly' do
@@ -28,8 +28,8 @@ describe Warden::Ldap do
     Warden::Ldap::Connection.any_instance.stub(:ldap_param_value).with('cn').and_return('Samuel')
     Warden::Ldap::Connection.any_instance.stub(:ldap_param_value).with('mail').and_return('Samuel@swiftpenguin.com')
     result = setup_rack(app).call(env)
-    result.first.should == 200
-    result.last.should == ["You Rock!"]
+    expect(result.first).to eq 200
+    expect(result.last).to eq ['You Rock!']
   end
 
   it 'returns authenticated user information' do
@@ -43,7 +43,7 @@ describe Warden::Ldap do
     Warden::Ldap::Connection.any_instance.stub(:ldap_param_value).with('cn').and_return('Samuel')
     Warden::Ldap::Connection.any_instance.stub(:ldap_param_value).with('mail').and_return('Samuel@swiftpenguin.com')
     result = setup_rack(app).call(env)
-    env['warden'].user.username.should == 'bobby'
-    env['warden'].user.name.should == 'Samuel'
+    expect(env['warden'].user.username).to eq 'bobby'
+    expect(env['warden'].user.name).to eq 'Samuel'
   end
 end

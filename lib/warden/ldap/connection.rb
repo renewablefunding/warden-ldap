@@ -3,7 +3,7 @@ require 'yaml'
 module Warden
   module Ldap
     class Connection
-      attr_reader :ldap, :login
+      attr_reader :ldap, :login, :host_addresses
       def logger
         Warden::Ldap.logger
       end
@@ -23,8 +23,10 @@ module Warden
 
         options[:encryption] = config["ssl"].to_sym if config["ssl"]
 
+        set_host_addresses
+
         @ldap = Net::LDAP.new(options)
-        @ldap.host = config["host"]
+        @ldap.host = host_addresses.first
         @ldap.port = config["port"]
         @ldap.base = config["base"]
 
@@ -67,10 +69,21 @@ module Warden
       #  nil if password was not provided
       #
       def authenticate!
-        if @password
-          @ldap.auth(dn, @password)
-          @ldap.bind
+        result, count, length  = [ nil, 0, host_addresses.length ]
+
+        while count < length * 2
+          begin
+            logger.info("Attempting LDAP connect with host #{@ldap.host}.")
+            Timeout::timeout(config.fetch('timeout', 15).to_i) { result = connect! }
+            break
+          rescue Errno::ETIMEDOUT, Timeout::Error => e
+            logger.error("Requested host timed out: #{@ldap.host}; trying again with new host.")
+            count += 1
+            @ldap.host = host_addresses[count % length]
+          end
         end
+
+        result
       end
 
       # @public
@@ -92,6 +105,28 @@ module Warden
       end
 
       private
+      # @private
+      def connect!
+        if @password
+          @ldap.auth(dn, @password)
+          @ldap.bind
+        end
+      end
+
+      # @private
+      # returns an array of ip addresses
+      def set_host_addresses
+        @host_addresses = Resolv::DNS.open { |dns|
+          dns.getresources(config['host'], Resolv::DNS::Resource::IN::A)
+            .map(&:address)
+            .map(&:to_s)
+        }
+      end
+
+      def ldap_host
+        @ldap.host
+      end
+
       # @private
       # Searches the LDAP for the login
       #

@@ -7,6 +7,6 @@ gem 'rspec'
 
 group :development, :test do
   gem 'rack'
-  gem 'debugger'
+  gem 'pry'
   gem 'simplecov'
 end

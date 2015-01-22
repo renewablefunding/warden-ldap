@@ -1,44 +1,95 @@
 describe Warden::Ldap::Connection do
-  describe '#authentiate!' do
+  before(:each) do
+    allow_any_instance_of(described_class).to receive(:config)
+      .and_return({'host' => 'example.com'})
+  end
+  describe '#initialize' do
+    let(:resource_one) { double(:address => 'ip_one')}
+    let(:resource_two) { double(:address => 'ip_two')}
+
+    it 'sets up host_addresses' do
+      allow_any_instance_of(Resolv::DNS).to receive(:getresources)
+        .with('example.com', Resolv::DNS::Resource::IN::A)
+        .and_return([resource_one, resource_two])
+      subject = described_class.new
+      expect(subject.host_addresses).to match_array ['ip_one', 'ip_two']
+    end
+  end
+
+  describe '#authenticate!' do
+    before(:each) do
+      allow_any_instance_of(described_class).to receive(:host_addresses)
+        .and_return(['foo', 'bar'])
+    end
+
     it 'does nothing if no password present' do
       subject = described_class.new({'username' => 'bob'})
-      subject.authenticate!.should be_false
+      expect(subject.authenticate!).to be_nil
     end
 
     it 'authenticates and binds to ldap adapter' do
       subject = described_class.new({:username => 'bob', :password => 'secret'})
-      subject.stub(:dn => 'Sammy')
-      Net::LDAP.any_instance.should_receive(:auth).with('Sammy', 'secret')
-      Net::LDAP.any_instance.should_receive(:bind).and_return(true)
-      subject.authenticate!.should be_true
+      allow(subject).to receive(:dn).and_return('Sammy')
+      expect_any_instance_of(Net::LDAP).to receive(:auth).with('Sammy', 'secret')
+      expect_any_instance_of(Net::LDAP).to receive(:bind).and_return(true)
+      expect(subject.authenticate!).to eq true
+    end
+
+    it 'tries next host if first times out and logs both attempts' do
+      subject = described_class.new({:username => 'bob', :password => 'secret'})
+      expect(subject.send(:ldap_host)).to eq 'foo'
+
+      allow(subject).to receive(:connect!) do
+        allow(subject).to receive(:connect!).and_return(true)
+        raise Timeout::Error
+      end
+
+      expect(subject.logger).to receive(:info).twice
+        .with(/Attempting LDAP connect with host (foo|bar)./)
+
+      subject.authenticate!
+      expect(subject.send(:ldap_host)).to eq 'bar'
+    end
+
+    it 'attempts each host twice and logs the failures' do
+      subject = described_class.new({:username => 'bob', :password => 'secret'})
+
+      # four times since there are two hosts ['foo', 'bar'] and each gets tried twice
+      expect(subject).to receive(:connect!)
+        .exactly(4).times { raise Timeout::Error }
+      expect(subject.logger).to receive(:error)
+        .exactly(4).times
+        .with(/Requested host timed out: (bar|foo); trying again with new host\./)
+
+      expect(subject.authenticate!).to be_nil
     end
   end
 
-  describe "#ldap_param_value" do
+  describe '#ldap_param_value' do
     subject{described_class.new}
     let(:ldap) {Net::LDAP.new}
     let(:entry) {Net::LDAP::Entry.new('ldap_entry')}
 
     it 'returns value if ldap entry found' do
-      Net::LDAP.stub(:new => ldap)
+      allow(Net::LDAP).to receive(:new).and_return(ldap)
       entry['cn'] = 'code name'
-      ldap.should_receive(:search).and_yield(entry)
-      subject.logger.should_receive(:info).with('Requested param cn has value ["code name"]')
-      subject.ldap_param_value(:cn).should == 'code name'
+      allow(ldap).to receive(:search).and_yield(entry)
+      expect(subject.logger).to receive(:info).with('Requested param cn has value ["code name"]')
+      expect(subject.ldap_param_value(:cn)).to eq 'code name'
     end
 
     it 'returns nil if ldap entry does not have attribute' do
-      Net::LDAP.stub(:new => ldap)
-      ldap.should_receive(:search).and_yield(entry)
-      subject.logger.should_receive(:error).with('Requested param cn does not exist')
-      subject.ldap_param_value(:cn).should be_nil
+      allow(Net::LDAP).to receive(:new).and_return(ldap)
+      expect(ldap).to receive(:search).and_yield(entry)
+      expect(subject.logger).to receive(:error).with('Requested param cn does not exist')
+      expect(subject.ldap_param_value(:cn)).to be_nil
     end
 
     it 'returns nil if ldap entry not found' do
-      Net::LDAP.stub(:new => ldap)
-      ldap.should_receive(:search)
-      subject.logger.should_receive(:error).with('Requested ldap entry does not exist')
-      subject.ldap_param_value(:cn).should be_nil
+      allow(Net::LDAP).to receive(:new).and_return(ldap)
+      expect(ldap).to receive(:search)
+      expect(subject.logger).to receive(:error).with('Requested ldap entry does not exist')
+      expect(subject.ldap_param_value(:cn)).to be_nil
     end
 
   end

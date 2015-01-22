@@ -18,24 +18,24 @@ describe Warden::Ldap::Configuration do
     it 'returns true if current env is one of test_environments' do
       subject.test_environments = ['siesta', 'fiesta']
       subject.env = 'siesta'
-      subject.test_env?.should be_true
+      expect(subject.test_env?).to eq true
     end
 
     it 'returns false if current env is one of test_environments' do
       subject.test_environments = ['siesta', 'fiesta']
       subject.env = 'nada'
-      subject.test_env?.should be_false
+      expect(subject.test_env?).to eq false
     end
 
     it 'returns false if test_environemnts is empty' do
       subject.test_environments = []
       subject.env = 'fiesta'
-      subject.test_env?.should be_false
+      expect(subject.test_env?).to eq false
     end
 
     it 'returns false if test_environemnts is undefined' do
       subject.env = 'fiesta'
-      subject.test_env?.should be_false
+      expect(subject.test_env?).to eq false
     end
   end
 end
