@@ -1,27 +1,18 @@
 describe Warden::Ldap::Connection do
   before(:each) do
     allow_any_instance_of(described_class).to receive(:config)
-      .and_return({'host' => '_ldap._tcp.ds.renewfund.com'})
-      # .and_return({'host' => '_ldap._tcp.example.com'})
+      .and_return({'host' => '_ldap._tcp.example.com'})
   end
   describe '#initialize' do
     let(:resource_one) { double(:target => 'foo')}
     let(:resource_two) { double(:target => 'bar')}
-    let(:host_one) { double(:address => 'ip_one') }
-    let(:host_two) { double(:address => 'ip_two') }
 
     it 'sets up host_addresses' do
-      # allow_any_instance_of(Resolv::DNS).to receive(:getresources)
-      #   .with('_ldap._tcp.example.com', Resolv::DNS::Resource::IN::SRV)
-      #   .and_return([resource_one, resource_two])
-      # allow_any_instance_of(Resolv::DNS).to receive(:getresources)
-      #   .with('foo', Resolv::DNS::Resource::IN::A)
-      #   .and_return([host_one])
-      # allow_any_instance_of(Resolv::DNS).to receive(:getresources)
-      #   .with('bar', Resolv::DNS::Resource::IN::A)
-      #   .and_return([host_two])
+      allow_any_instance_of(Resolv::DNS).to receive(:getresources)
+        .with('_ldap._tcp.example.com', Resolv::DNS::Resource::IN::SRV)
+        .and_return([resource_one, resource_two])
       subject = described_class.new
-      expect(subject.host_addresses).to match_array ['ip_one', 'ip_two']
+      expect(subject.host_addresses).to match_array ['foo', 'bar']
     end
   end
 
