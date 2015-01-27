@@ -114,10 +114,19 @@ module Warden
       end
 
       # @private
-      # returns an array of ip addresses
+      # sets @host_addresses to an array of ip addresses
       def set_host_addresses
         @host_addresses = Resolv::DNS.open { |dns|
-          dns.getresources(config['host'], Resolv::DNS::Resource::IN::A)
+          dns.getresources(config['host'], Resolv::DNS::Resource::IN::SRV)
+            .map(&:target)
+            .map { |target| ip_addresses_from_target(target) }
+            .flatten
+        }
+      end
+
+      def ip_addresses_from_target(target)
+        Resolv::DNS.open { |dns|
+          dns.getresources(target, Resolv::DNS::Resource::IN::A)
             .map(&:address)
             .map(&:to_s)
         }
