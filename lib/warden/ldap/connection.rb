@@ -74,7 +74,7 @@ module Warden
         while count < length * 2
           begin
             logger.info("Attempting LDAP connect with host #{@ldap.host}.")
-            Timeout::timeout(config.fetch('timeout', 15).to_i) { result = connect! }
+            Timeout::timeout(config.fetch('timeout', 5).to_i) { result = connect! }
             break
           rescue Errno::ETIMEDOUT, Timeout::Error => e
             logger.error("Requested host timed out: #{@ldap.host}; trying again with new host.")
