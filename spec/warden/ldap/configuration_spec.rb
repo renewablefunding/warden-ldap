@@ -3,7 +3,7 @@ describe Warden::Ldap::Configuration do
     it 'returns Rails.env if defined' do
       rails = double(:env => :rails_environemnt)
       stub_const("Rails", rails)
-      described_class.new.env.should == :rails_environemnt
+      expect(described_class.new.env).to eq(:rails_environemnt)
     end
 
     it 'raises error if no environemnt defined' do
