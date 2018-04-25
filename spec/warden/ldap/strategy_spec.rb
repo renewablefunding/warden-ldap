@@ -22,7 +22,7 @@ describe Warden::Ldap::Strategy do
   describe '#authenticte!' do
     before :each do
       @env = env_with_params("/", {'username' => 'test', 'password' => 'secret'})
-      subject.stub(:valid? => true)
+      allow(subject).to receive_messages(:valid? => true)
     end
 
     let(:test_connection) { double(Warden::Ldap::Connection) }
@@ -37,21 +37,21 @@ describe Warden::Ldap::Strategy do
         .and_return('Samuel@swiftpenguin.com')
 
       allow(Warden::Ldap::Connection).to receive(:new).and_return(test_connection)
-      subject.should_receive(:success!)
+      expect(subject).to receive(:success!)
       subject.authenticate!
     end
 
     it 'fails if ldap connection fails' do
       allow(test_connection).to receive(:authenticate!).and_return(false)
       allow(Warden::Ldap::Connection).to receive(:new).and_return(test_connection)
-      subject.should_receive(:fail!)
+      expect(subject).to receive(:fail!)
       subject.authenticate!
     end
 
     it 'fails if Net::LDAP::LdapError was raised' do
       allow(test_connection).to receive(:authenticate!).and_raise(Net::LDAP::LdapError)
       allow(Warden::Ldap::Connection).to receive(:new).and_return(test_connection)
-      subject.should_receive(:fail!)
+      expect(subject).to receive(:fail!)
       subject.authenticate!
     end
 

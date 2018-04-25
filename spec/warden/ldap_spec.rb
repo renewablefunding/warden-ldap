@@ -23,10 +23,10 @@ describe Warden::Ldap do
       env['warden'].authenticate(:ldap)
       success_app.call(env)
     end
-    Warden::Ldap::Connection.any_instance.stub(:authenticate! => true)
-    Warden::Ldap::Connection.any_instance.stub(:ldap_param_value).with('samAccountName').and_return('samuel')
-    Warden::Ldap::Connection.any_instance.stub(:ldap_param_value).with('cn').and_return('Samuel')
-    Warden::Ldap::Connection.any_instance.stub(:ldap_param_value).with('mail').and_return('Samuel@swiftpenguin.com')
+    allow_any_instance_of(Warden::Ldap::Connection).to receive_messages(:authenticate! => true)
+    allow_any_instance_of(Warden::Ldap::Connection).to receive(:ldap_param_value).with('samAccountName').and_return('samuel')
+    allow_any_instance_of(Warden::Ldap::Connection).to receive(:ldap_param_value).with('cn').and_return('Samuel')
+    allow_any_instance_of(Warden::Ldap::Connection).to receive(:ldap_param_value).with('mail').and_return('Samuel@swiftpenguin.com')
     result = setup_rack(app).call(env)
     expect(result.first).to eq 200
     expect(result.last).to eq ['You Rock!']
@@ -38,10 +38,10 @@ describe Warden::Ldap do
       env['warden'].authenticate(:ldap)
       success_app.call(env)
     end
-    Warden::Ldap::Connection.any_instance.stub(:authenticate! => true)
-    Warden::Ldap::Connection.any_instance.stub(:ldap_param_value).with('samAccountName').and_return('bobby')
-    Warden::Ldap::Connection.any_instance.stub(:ldap_param_value).with('cn').and_return('Samuel')
-    Warden::Ldap::Connection.any_instance.stub(:ldap_param_value).with('mail').and_return('Samuel@swiftpenguin.com')
+    allow_any_instance_of(Warden::Ldap::Connection).to receive_messages(:authenticate! => true)
+    allow_any_instance_of(Warden::Ldap::Connection).to receive(:ldap_param_value).with('samAccountName').and_return('bobby')
+    allow_any_instance_of(Warden::Ldap::Connection).to receive(:ldap_param_value).with('cn').and_return('Samuel')
+    allow_any_instance_of(Warden::Ldap::Connection).to receive(:ldap_param_value).with('mail').and_return('Samuel@swiftpenguin.com')
     result = setup_rack(app).call(env)
     expect(env['warden'].user.username).to eq 'bobby'
     expect(env['warden'].user.name).to eq 'Samuel'
