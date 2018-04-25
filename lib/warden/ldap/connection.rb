@@ -1,5 +1,5 @@
 require 'yaml'
-
+require 'resolv'
 module Warden
   module Ldap
     class Connection
